@@ -1,0 +1,29 @@
+{
+    "name": "ai-memory-os-backend",
+    "version": "1.0.0",
+    "main": "src/server.js",
+    "type": "module",
+    "scripts": {
+        "dev": "nodemon src/server.js",
+        "start": "node src/server.js"
+    },
+    "dependencies": {
+        "@xenova/transformers": "^2.17.2",
+        "bcryptjs": "^2.4.3",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^4.19.2",
+        "express-rate-limit": "^7.4.0",
+        "groq-sdk": "^1.6.0",
+        "helmet": "^7.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "mammoth": "^1.12.3",
+        "mongoose": "^8.5.1",
+        "morgan": "^1.10.0",
+        "multer": "^2.4.0",
+        "pdf-parse": "^2.4.5"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.4"
+    }
+}

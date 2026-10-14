@@ -1,0 +1,1 @@
+Abhishek is a full-stack developer proficient in the MERN stack. He is currently building an AI Memory OS project that uses RAG and MongoDB Vector Search. He previously built a project called CodeMind, an AI-powered GitHub developer assistant. He prefers working with Node.js and Express for backend development.

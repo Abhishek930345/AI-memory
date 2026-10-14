@@ -1,0 +1,1 @@
+Abhishek is building an AI Memory OS project using MERN stack. He is a competitive programmer who works on DSA problems regularly. The project uses RAG with MongoDB Vector Search to retrieve relevant memories and provide context-aware answers. It also implements a knowledge graph to track relationships between entities like projects and technologies.
