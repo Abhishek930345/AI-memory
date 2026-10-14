@@ -4,10 +4,11 @@ import Memory from "../models/Memory.js";
 import MemoryConflict from "../models/MemoryConflict.js";
 import { extractFacts } from "../services/extraction.llm.service.js";
 import { processFact } from "../services/memory.service.js";
+import { processGraphForMemory } from "../services/graph.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 // @route POST /api/memories/extract/:documentId
-// Runs extraction on all chunks of a document and processes each fact
+// Runs extraction on all chunks of a document, processes each fact, and builds the knowledge graph
 export const extractFromDocument = asyncHandler(async (req, res) => {
   const document = await Document.findOne({ _id: req.params.documentId, user: req.user._id });
   if (!document) {
@@ -17,7 +18,15 @@ export const extractFromDocument = asyncHandler(async (req, res) => {
 
   const chunks = await Chunk.find({ document: document._id }).sort({ chunkIndex: 1 });
 
-  const summary = { created: 0, updated: 0, extended: 0, duplicates: 0, conflicts: 0 };
+  const summary = {
+    created: 0,
+    updated: 0,
+    extended: 0,
+    duplicates: 0,
+    conflicts: 0,
+    entities: 0,
+    relationships: 0,
+  };
 
   for (const chunk of chunks) {
     const facts = await extractFacts(chunk.text);
@@ -32,11 +41,26 @@ export const extractFromDocument = asyncHandler(async (req, res) => {
         fact,
       });
 
-      if (result.action === "created") summary.created++;
-      else if (result.action === "update") summary.updated++;
-      else if (result.action === "extension") summary.extended++;
-      else if (result.action === "duplicate_skipped") summary.duplicates++;
-      else if (result.action === "conflict_flagged") summary.conflicts++;
+      if (result.action === "created") {
+        summary.created++;
+        const graphResult = await processGraphForMemory(result.memory);
+        summary.entities += graphResult.entitiesCreated;
+        summary.relationships += graphResult.relationshipsCreated;
+      } else if (result.action === "update") {
+        summary.updated++;
+        const graphResult = await processGraphForMemory(result.memory);
+        summary.entities += graphResult.entitiesCreated;
+        summary.relationships += graphResult.relationshipsCreated;
+      } else if (result.action === "extension") {
+        summary.extended++;
+        const graphResult = await processGraphForMemory(result.memory);
+        summary.entities += graphResult.entitiesCreated;
+        summary.relationships += graphResult.relationshipsCreated;
+      } else if (result.action === "duplicate_skipped") {
+        summary.duplicates++;
+      } else if (result.action === "conflict_flagged") {
+        summary.conflicts++;
+      }
     }
   }
 
@@ -78,7 +102,7 @@ export const resolveConflict = asyncHandler(async (req, res) => {
     const { generateEmbedding } = await import("../services/embedding.service.js");
     const embedding = await generateEmbedding(conflict.newFactText);
 
-    await Memory.create({
+    const newMemory = await Memory.create({
       user: req.user._id,
       project: (await Memory.findById(conflict.existingMemory)).project,
       text: conflict.newFactText,
@@ -86,6 +110,8 @@ export const resolveConflict = asyncHandler(async (req, res) => {
       confidence: conflict.newFactConfidence,
       embedding,
     });
+
+    await processGraphForMemory(newMemory);
 
     if (resolution === "kept_new") {
       const oldMemory = await Memory.findById(conflict.existingMemory);

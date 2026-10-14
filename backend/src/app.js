@@ -10,6 +10,7 @@ import documentRoutes from "./routes/document.routes.js";
 import searchRoutes from "./routes/search.routes.js";
 import chatRoutes from "./routes/chat.routes.js";
 import memoryRoutes from "./routes/memory.routes.js";
+import graphRoutes from "./routes/graph.routes.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/api/documents", documentRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/memories", memoryRoutes);
+app.use("/api/graph", graphRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -57,9 +57,14 @@ const Memories = () => {
           <p className="text-sm text-muted mb-0.5">Memory OS</p>
           <h1 className="font-serif text-xl text-text">Your memory</h1>
         </div>
-        <Link to="/chat" className="text-sm text-accent hover:underline">
-          Back to chat
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/graph" className="text-sm text-accent hover:underline">
+            Knowledge graph
+          </Link>
+          <Link to="/chat" className="text-sm text-accent hover:underline">
+            Back to chat
+          </Link>
+        </div>
       </header>
 
       <div className="max-w-3xl mx-auto px-6 py-10">

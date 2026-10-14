@@ -1,0 +1,1 @@
+Abhishek works at a tech company as a software engineer. He collaborates with his teammate Priya on the AI Memory OS project. The project is built using MongoDB, Express, React, and Node.js.

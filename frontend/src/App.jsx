@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Chat from "./pages/Chat";
 import Memories from "./pages/Memories";
+import Graph from "./pages/Graph";
 
 function App() {
   return (
@@ -26,6 +27,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Memories />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/graph"
+            element={
+              <ProtectedRoute>
+                <Graph />
               </ProtectedRoute>
             }
           />
