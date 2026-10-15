@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Chat from "./pages/Chat";
 import Memories from "./pages/Memories";
 import Graph from "./pages/Graph";
+import Timeline from "./pages/Timeline";
 
 function App() {
   return (
@@ -35,6 +36,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Graph />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/timeline"
+            element={
+              <ProtectedRoute>
+                <Timeline />
               </ProtectedRoute>
             }
           />

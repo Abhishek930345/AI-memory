@@ -58,6 +58,9 @@ const Memories = () => {
           <h1 className="font-serif text-xl text-text">Your memory</h1>
         </div>
         <div className="flex items-center gap-4">
+          <Link to="/timeline" className="text-sm text-accent hover:underline">
+            History
+          </Link>
           <Link to="/graph" className="text-sm text-accent hover:underline">
             Knowledge graph
           </Link>
