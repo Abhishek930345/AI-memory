@@ -97,8 +97,8 @@ const Chat = () => {
 
     try {
       const res = await api.post("/chat", { query: userMessage.text });
-      const { answer, sources } = res.data.data;
-      setMessages((prev) => [...prev, { role: "assistant", text: answer, sources }]);
+      const { answer, sources, graph } = res.data.data;
+      setMessages((prev) => [...prev, { role: "assistant", text: answer, sources, graph }]);
     } catch (err) {
       setMessages((prev) => [
         ...prev,
@@ -247,6 +247,22 @@ const Chat = () => {
                             Source {j + 1} · {Math.round(s.score * 100)}%
                           </span>
                         ))}
+                      </div>
+                    )}
+                    {msg.graph?.entities?.length > 0 && (
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        <span className="text-xs text-muted">Graph</span>
+                        {msg.graph.entities.map((name, k) => (
+                          <span
+                            key={k}
+                            className="text-xs text-accent bg-accent/10 border border-accent/30 rounded-full px-2.5 py-1"
+                          >
+                            {name}
+                          </span>
+                        ))}
+                        <span className="text-xs text-muted">
+                          · {msg.graph.facts.length} connections used
+                        </span>
                       </div>
                     )}
                   </div>

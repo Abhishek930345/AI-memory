@@ -117,6 +117,7 @@ export const resolveConflict = asyncHandler(async (req, res) => {
       const oldMemory = await Memory.findById(conflict.existingMemory);
       if (oldMemory) {
         oldMemory.status = "superseded";
+        oldMemory.supersededBy = newMemory._id;
         await oldMemory.save();
       }
     }
@@ -128,4 +129,55 @@ export const resolveConflict = asyncHandler(async (req, res) => {
   await conflict.save();
 
   res.json({ success: true, data: conflict });
+});
+
+// @route GET /api/memories/timeline
+// Returns chains of memories where a fact was replaced over time (oldest -> newest)
+export const getTimeline = asyncHandler(async (req, res) => {
+  const superseded = await Memory.find({
+    user: req.user._id,
+    supersededBy: { $ne: null },
+  }).select("-embedding");
+
+  if (superseded.length === 0) {
+    return res.json({ success: true, data: [] });
+  }
+
+  // A chain starts at the oldest memory: one that no other memory points to
+  const pointedTo = new Set(superseded.map((m) => String(m.supersededBy)));
+  const starts = superseded.filter((m) => !pointedTo.has(String(m._id)));
+
+  const chains = [];
+
+  for (const start of starts) {
+    const chain = [start];
+    let current = start;
+
+    while (current.supersededBy) {
+      const next = await Memory.findById(current.supersededBy).select("-embedding");
+      if (!next) break;
+      chain.push(next);
+      current = next;
+      if (chain.length > 20) break; // safety guard against cycles
+    }
+
+    chains.push(
+      chain.map((m) => ({
+        id: m._id,
+        text: m.text,
+        category: m.category,
+        status: m.status,
+        createdAt: m.createdAt,
+      }))
+    );
+  }
+
+  // Most recently changed chains first
+  chains.sort(
+    (a, b) =>
+      new Date(b[b.length - 1].createdAt).getTime() -
+      new Date(a[a.length - 1].createdAt).getTime()
+  );
+
+  res.json({ success: true, data: chains });
 });
