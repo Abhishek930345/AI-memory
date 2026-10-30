@@ -1,6 +1,4 @@
-import Groq from "groq-sdk";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+import { getGroqClient, getGroqModel } from "../config/groq.js";
 
 const GRAPH_EXTRACTION_PROMPT = `You extract entities and relationships from a fact about a person, to build a knowledge graph.
 
@@ -16,14 +14,15 @@ Output format:
 {"entities": [{"name": "string", "type": "person|project|technology|organization|skill|concept|other"}], "relationships": [{"source": "entity name", "target": "entity name", "label": "string"}]}`;
 
 export const extractGraph = async (factText) => {
+  const groq = getGroqClient();
   const completion = await groq.chat.completions.create({
-    model: "openai/gpt-oss-120b",
+    model: getGroqModel(),
     messages: [
       { role: "system", content: GRAPH_EXTRACTION_PROMPT },
       { role: "user", content: factText },
     ],
     temperature: 0.1,
-    max_tokens: 500,
+    max_tokens: 2000,
   });
 
   const raw = completion.choices[0].message.content.trim();

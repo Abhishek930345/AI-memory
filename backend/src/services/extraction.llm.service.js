@@ -1,6 +1,4 @@
-import Groq from "groq-sdk";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+import { getGroqClient, getGroqModel } from "../config/groq.js";
 
 const EXTRACTION_SYSTEM_PROMPT = `You are a memory extraction engine. Given a piece of text, extract atomic facts worth remembering long-term about the person it describes.
 
@@ -16,14 +14,15 @@ Output format:
 {"facts": [{"text": "string", "category": "identity|preference|project|relationship|skill|event|goal", "confidence": 0.0-1.0}]}`;
 
 export const extractFacts = async (text) => {
+  const groq = getGroqClient();
   const completion = await groq.chat.completions.create({
-    model: "openai/gpt-oss-120b",
+    model: getGroqModel(),
     messages: [
       { role: "system", content: EXTRACTION_SYSTEM_PROMPT },
       { role: "user", content: text },
     ],
     temperature: 0.2,
-    max_tokens: 1000,
+    max_tokens: 3000,
   });
 
   const raw = completion.choices[0].message.content.trim();

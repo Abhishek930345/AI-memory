@@ -32,9 +32,7 @@
 
 //   return completion.choices[0].message.content;
 // };
-import Groq from "groq-sdk";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+import { getGroqClient, getGroqModel } from "../config/groq.js";
 
 export const generateAnswer = async (query, contextChunks, graphFacts = []) => {
   const context = contextChunks.map((c, i) => `[${i + 1}] ${c.text}`).join("\n\n");
@@ -51,14 +49,15 @@ export const generateAnswer = async (query, contextChunks, graphFacts = []) => {
 Context:
 ${context || "(no document excerpts matched)"}${graphSection}`;
 
+  const groq = getGroqClient();
   const completion = await groq.chat.completions.create({
-    model: "openai/gpt-oss-120b",
+    model: getGroqModel(),
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: query },
     ],
     temperature: 0.3,
-    max_tokens: 500,
+    max_tokens: 2000,
   });
 
   return completion.choices[0].message.content;

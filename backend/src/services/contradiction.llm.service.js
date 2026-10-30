@@ -1,6 +1,4 @@
-import Groq from "groq-sdk";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+import { getGroqClient, getGroqModel } from "../config/groq.js";
 
 const CONTRADICTION_SYSTEM_PROMPT = `You compare a NEW fact against an EXISTING memory about the same user. Classify their relationship.
 
@@ -15,8 +13,9 @@ Output STRICT JSON only. No markdown, no preamble.
 Format: {"relationship": "duplicate|update|extension|contradiction|unrelated", "reasoning": "one sentence", "merged_fact": "string or null"}`;
 
 export const classifyRelationship = async (existingFact, newFact) => {
+  const groq = getGroqClient();
   const completion = await groq.chat.completions.create({
-    model: "openai/gpt-oss-120b",
+    model: getGroqModel(),
     messages: [
       { role: "system", content: CONTRADICTION_SYSTEM_PROMPT },
       {
@@ -25,7 +24,7 @@ export const classifyRelationship = async (existingFact, newFact) => {
       },
     ],
     temperature: 0.1,
-    max_tokens: 300,
+    max_tokens: 1500,
   });
 
   const raw = completion.choices[0].message.content.trim();

@@ -4,7 +4,9 @@ import { extractGraph } from "./graph.llm.service.js";
 
 // Finds or creates an entity by name+type for this user (case-insensitive match)
 const findOrCreateEntity = async (userId, name, type, memoryId) => {
+  if (!name || typeof name !== "string") return null;
   const normalizedName = name.trim();
+  if (!normalizedName) return null;
 
   let entity = await Entity.findOne({
     user: userId,
@@ -30,22 +32,30 @@ export const processGraphForMemory = async (memory) => {
   const entityMap = {}; // name -> Entity doc, for linking relationships
 
   for (const e of entities) {
+    if (!e?.name) continue;
     const entity = await findOrCreateEntity(memory.user, e.name, e.type, memory._id);
-    entityMap[e.name.toLowerCase()] = entity;
+    if (entity) {
+      entityMap[e.name.toLowerCase()] = entity;
+    }
   }
 
   let relationshipCount = 0;
 
   for (const r of relationships) {
-    const source = entityMap[r.source.toLowerCase()] || (await findOrCreateEntity(memory.user, r.source, "other", memory._id));
-    const target = entityMap[r.target.toLowerCase()] || (await findOrCreateEntity(memory.user, r.target, "other", memory._id));
+    if (!r?.source || !r?.target) continue;
+    const source =
+      entityMap[r.source.toLowerCase()] || (await findOrCreateEntity(memory.user, r.source, "other", memory._id));
+    const target =
+      entityMap[r.target.toLowerCase()] || (await findOrCreateEntity(memory.user, r.target, "other", memory._id));
+
+    if (!source || !target) continue;
 
     try {
       await Relationship.create({
         user: memory.user,
         source: source._id,
         target: target._id,
-        label: r.label,
+        label: r.label || "relates_to",
         sourceMemory: memory._id,
       });
       relationshipCount++;

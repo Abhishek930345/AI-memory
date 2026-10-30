@@ -44,18 +44,18 @@ export const extractFromDocument = asyncHandler(async (req, res) => {
       if (result.action === "created") {
         summary.created++;
         const graphResult = await processGraphForMemory(result.memory);
-        summary.entities += graphResult.entitiesCreated;
-        summary.relationships += graphResult.relationshipsCreated;
+        summary.entities += graphResult?.entitiesCreated || 0;
+        summary.relationships += graphResult?.relationshipsCreated || 0;
       } else if (result.action === "update") {
         summary.updated++;
         const graphResult = await processGraphForMemory(result.memory);
-        summary.entities += graphResult.entitiesCreated;
-        summary.relationships += graphResult.relationshipsCreated;
+        summary.entities += graphResult?.entitiesCreated || 0;
+        summary.relationships += graphResult?.relationshipsCreated || 0;
       } else if (result.action === "extension") {
         summary.extended++;
         const graphResult = await processGraphForMemory(result.memory);
-        summary.entities += graphResult.entitiesCreated;
-        summary.relationships += graphResult.relationshipsCreated;
+        summary.entities += graphResult?.entitiesCreated || 0;
+        summary.relationships += graphResult?.relationshipsCreated || 0;
       } else if (result.action === "duplicate_skipped") {
         summary.duplicates++;
       } else if (result.action === "conflict_flagged") {
